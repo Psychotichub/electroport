@@ -1,15 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const TopNav = () => {
   const { isAuthenticated, user, logout } = useAuth()
   const [open, setOpen] = useState(false)
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
   const navigate = useNavigate()
 
   const handleLogout = async () => {
     await logout()
     navigate('/login')
+  }
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
   }
 
   return (
@@ -69,6 +79,9 @@ const TopNav = () => {
             </NavLink>
             <button type="button" className="ghost-btn" onClick={handleLogout}>
               Logout {user?.username ? `(${user.username})` : ''}
+            </button>
+            <button type="button" className="ghost-btn" onClick={toggleTheme}>
+              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
             </button>
           </>
         ) : (

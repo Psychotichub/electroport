@@ -31,9 +31,12 @@ const DailyReport = () => {
   const [editingId, setEditingId] = useState(null)
   const [panelCircuits, setPanelCircuits] = useState({})
 
-  const units = useMemo(() => {
-    const unique = new Set(materials.map((m) => m.unit).filter(Boolean))
-    return Array.from(unique)
+  const materialUnitMap = useMemo(() => {
+    const map = new Map()
+    materials.forEach((m) => {
+      if (m.materialName && m.unit) map.set(m.materialName, m.unit)
+    })
+    return map
   }, [materials])
 
   const load = async (date) => {
@@ -74,7 +77,12 @@ const DailyReport = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    if (name === 'materialName') {
+      const unit = materialUnitMap.get(value) || ''
+      setForm((prev) => ({ ...prev, materialName: value, unit }))
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -166,14 +174,7 @@ const DailyReport = () => {
             </label>
             <label className="form-field">
               <span>Unit</span>
-              <select name="unit" value={form.unit} onChange={handleChange}>
-                <option value="">Select unit</option>
-                {units.map((u) => (
-                  <option key={u} value={u}>
-                    {u}
-                  </option>
-                ))}
-              </select>
+              <input name="unit" value={form.unit} readOnly placeholder="Auto from material" />
             </label>
           </div>
 

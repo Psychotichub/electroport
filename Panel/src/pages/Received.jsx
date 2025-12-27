@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { createReceived, deleteReceived, fetchMaterials, fetchReceivedByDate, updateReceived } from '../services/userApi'
 
@@ -20,6 +20,13 @@ const Received = () => {
   const [status, setStatus] = useState({ loading: false, error: '', success: '' })
   const [dateFilter, setDateFilter] = useState(emptyForm.date)
   const [editingId, setEditingId] = useState(null)
+  const materialUnitMap = useMemo(() => {
+    const map = new Map()
+    materials.forEach((m) => {
+      if (m.materialName && m.unit) map.set(m.materialName, m.unit)
+    })
+    return map
+  }, [materials])
 
   const load = async (date) => {
     try {
@@ -38,7 +45,12 @@ const Received = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    if (name === 'materialName') {
+      const unit = materialUnitMap.get(value) || ''
+      setForm((prev) => ({ ...prev, materialName: value, unit }))
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -125,7 +137,7 @@ const Received = () => {
             </label>
             <label className="form-field">
               <span>Unit</span>
-              <input name="unit" value={form.unit} onChange={handleChange} placeholder="e.g. kg, pcs" />
+              <input name="unit" value={form.unit} readOnly placeholder="Auto from material" />
             </label>
           </div>
 

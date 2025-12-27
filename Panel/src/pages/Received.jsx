@@ -28,9 +28,12 @@ const Received = () => {
     return map
   }, [materials])
 
+  const normalizeDate = (d) => new Date(d).toLocaleDateString('en-CA')
+
   const load = async (date) => {
     try {
-      const targetDate = date || dateFilter || new Date().toISOString().slice(0, 10)
+      const targetDateRaw = date || dateFilter || new Date().toISOString().slice(0, 10)
+      const targetDate = normalizeDate(targetDateRaw)
       const [list, mats] = await Promise.all([fetchReceivedByDate(targetDate), fetchMaterials()])
       setItems(list)
       setMaterials(mats)
@@ -75,7 +78,7 @@ const Received = () => {
   const handleEdit = (row) => {
     setEditingId(row._id)
     setForm({
-      date: row.date ? String(row.date).slice(0, 10) : emptyForm.date,
+      date: row.date ? new Date(row.date).toLocaleDateString('en-CA') : emptyForm.date,
       materialName: row.materialName || '',
       quantity: row.quantity || '',
       unit: row.unit || '',

@@ -12,14 +12,16 @@ const TotalPrice = () => {
   const [locationFilter, setLocationFilter] = useState('')
   const [panelFilter, setPanelFilter] = useState('')
 
+  const normalizeDate = (d) => new Date(d).toLocaleDateString('en-CA')
+
   const load = async ({ date, start, end }) => {
     try {
       setStatus((prev) => ({ ...prev, loading: true, error: '' }))
       let list = []
       if (start && end) {
-        list = await fetchDailyReportsByRange(start, end)
+        list = await fetchDailyReportsByRange(normalizeDate(start), normalizeDate(end))
       } else {
-        const targetDate = date || today
+        const targetDate = normalizeDate(date || today)
         list = await fetchDailyReportsByDate(targetDate)
       }
       setRecords(list)

@@ -39,9 +39,12 @@ const DailyReport = () => {
     return map
   }, [materials])
 
+  const normalizeDate = (d) => new Date(d).toLocaleDateString('en-CA')
+
   const load = async (date) => {
     try {
-      const targetDate = date || dateFilter || new Date().toISOString().slice(0, 10)
+      const targetDateRaw = date || dateFilter || new Date().toISOString().slice(0, 10)
+      const targetDate = normalizeDate(targetDateRaw)
       const [reports, mats, pnl] = await Promise.all([
         fetchDailyReportsByDate(targetDate),
         fetchMaterials(),
@@ -111,7 +114,7 @@ const DailyReport = () => {
   const handleEdit = (row) => {
     setEditingId(row._id)
     setForm({
-      date: row.date ? String(row.date).slice(0, 10) : initialForm.date,
+      date: row.date ? new Date(row.date).toLocaleDateString('en-CA') : initialForm.date,
       materialName: row.materialName || '',
       quantity: row.quantity || '',
       unit: row.unit || '',
